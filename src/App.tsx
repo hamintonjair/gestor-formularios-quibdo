@@ -83,7 +83,7 @@ function Dashboard() {
   >(INITIAL_DEMO_FORMS_MAP);
   const [needsAuth, setNeedsAuth] = useState(true);
   const [user, setUser] = useState<User | null>(null);
-  const [, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Form & Records State
@@ -201,7 +201,12 @@ function Dashboard() {
     async (accessTokenOverride?: string) => {
       const token = accessTokenOverride || (await getAccessToken());
       if (!token) {
-        setDriveForms(INITIAL_DEMO_DRIVE_FORMS);
+        if (user) {
+          // User is logged in but token is missing (e.g., page refresh)
+          setErrorMessage('Tu sesión requiere re-autorización. Por favor, haz clic en el botón de acceso nuevamente.');
+        } else {
+          setDriveForms(INITIAL_DEMO_DRIVE_FORMS);
+        }
         return;
       }
 
@@ -220,7 +225,7 @@ function Dashboard() {
         setIsLoadingDrive(false);
       }
     },
-    [currentForm, loadFormData, handleAuthError]
+    [user, currentForm, loadFormData, handleAuthError]
   );
 
   useEffect(() => {
@@ -736,6 +741,7 @@ function Dashboard() {
         formTitle={currentForm?.info.title}
         onOpenThemeConfig={() => setIsThemeModalOpen(true)}
         onConnectGoogle={handleLogin}
+        isTokenMissing={!!user && !token}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">

@@ -19,6 +19,7 @@ interface NavbarProps {
   formTitle?: string;
   onOpenThemeConfig?: () => void;
   onConnectGoogle?: () => void;
+  isTokenMissing?: boolean;
 }
 
 export const Navbar = ({
@@ -30,6 +31,7 @@ export const Navbar = ({
   formTitle,
   onOpenThemeConfig,
   onConnectGoogle,
+  isTokenMissing,
 }: NavbarProps) => {
   const { branding, currentTheme, formTheme } = useAppTheme();
 
@@ -87,17 +89,17 @@ export const Navbar = ({
               <span className="hidden sm:inline">Actualizar</span>
             </button>
 
-            {/* Connect Google Workspace Button if not signed in */}
-            {!user && onConnectGoogle && (
+            {/* Connect Google Workspace Button if not signed in or token missing */}
+            {onConnectGoogle && (!user || isTokenMissing) && (
               <button
                 type="button"
                 onClick={onConnectGoogle}
-                title="Conectar con tu cuenta de Google Workspace para sincronizar tus formularios de Google Drive"
+                title={isTokenMissing ? "Re-autorizar para sincronizar" : "Conectar con tu cuenta de Google Workspace"}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-2xs transition-opacity hover:opacity-95 cursor-pointer"
                 style={{ backgroundColor: currentTheme.primaryHex }}
               >
                 <LogIn className="w-3.5 h-3.5" />
-                <span>Conectar Google</span>
+                <span>{isTokenMissing ? 'Re-autorizar' : 'Conectar Google'}</span>
               </button>
             )}
 
