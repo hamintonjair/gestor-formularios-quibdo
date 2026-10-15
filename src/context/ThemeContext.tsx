@@ -28,8 +28,8 @@ const STORAGE_KEY = 'app_branding_config_v2';
 const DEFAULT_BRANDING: BrandingConfig = {
   institutionName: 'Gestor de Formularios y Registros',
   subHeader: 'Alcaldía de Quibdó · Secretaría de Inclusión y Cohesión Social',
-  logoUrl: null,
-  logoType: 'default',
+  logoUrl: '/logo.jpg',
+  logoType: 'custom',
   themeId: 'amber',
   formTheme: DEFAULT_FORM_THEME,
 };
