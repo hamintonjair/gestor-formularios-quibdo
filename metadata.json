@@ -1,0 +1,6 @@
+{
+  "name": "Gestor de Formularios y Registros",
+  "description": "Gestión y seguimiento de registros con Google Forms para captura y consulta de nombre, correo electrónico y fecha de registro.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
