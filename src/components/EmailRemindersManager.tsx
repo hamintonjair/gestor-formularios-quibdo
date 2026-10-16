@@ -2,16 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Mail, Send, Clock, CheckCircle, Bell, Users, Calendar, Sparkles } from 'lucide-react';
 import { useAppTheme } from '../context/ThemeContext';
 
+interface Attendee {
+  email: string;
+  displayName?: string;
+}
+
 interface MeetingItem {
   id: string;
   title: string;
   date: string;
   time: string;
   location: string;
-  attendeeEmail?: string;
-  attendeeName?: string;
+  attendees: Attendee[];
   description: string;
   meetLink?: string;
+  rawStartTimestamp: number;
 }
 
 export const EmailRemindersManager: React.FC = () => {
@@ -37,22 +42,33 @@ export const EmailRemindersManager: React.FC = () => {
           const sum = (e.summary || '').toLowerCase();
           return !sum.includes('cumpleaños') && !sum.includes('birthday');
         });
-        const mapped = filtered.map((e: any) => ({
-          id: e.id,
-          title: e.summary || 'Reunión sin título',
-          date: e.start?.dateTime ? e.start.dateTime.slice(0, 10) : (e.start?.date || ''),
-          time: e.start?.dateTime ? new Date(e.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '09:00',
-          location: e.location || 'Google Meet',
-          attendeeEmail: e.attendees?.[0]?.email || '',
-          attendeeName: e.attendees?.[0]?.displayName || e.attendees?.[0]?.email || '',
-          description: e.description || '',
-          meetLink: e.hangoutLink || '',
-        }));
-        const sorted = mapped.sort((a: MeetingItem, b: MeetingItem) => {
-          const timeA = new Date(`${a.date}T${a.time || '00:00'}`).getTime() || 0;
-          const timeB = new Date(`${b.date}T${b.time || '00:00'}`).getTime() || 0;
-          return timeB - timeA;
+
+        const mapped: MeetingItem[] = filtered.map((e: any) => {
+          const rawStart = e.start?.dateTime
+            ? new Date(e.start.dateTime).getTime()
+            : e.start?.date
+            ? new Date(e.start.date).getTime()
+            : 0;
+
+          const timeFormatted = e.start?.dateTime
+            ? new Date(e.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+            : '09:00';
+
+          return {
+            id: e.id,
+            title: e.summary || 'Reunión sin título',
+            date: e.start?.dateTime ? e.start.dateTime.slice(0, 10) : (e.start?.date || ''),
+            time: timeFormatted,
+            location: e.location || 'Google Meet',
+            attendees: e.attendees || [],
+            description: e.description || '',
+            meetLink: e.hangoutLink || '',
+            rawStartTimestamp: rawStart,
+          };
         });
+
+        // Most recent first
+        const sorted = mapped.sort((a, b) => b.rawStartTimestamp - a.rawStartTimestamp);
         setMeetings(sorted);
         if (sorted.length > 0) {
           setSelectedMeetingId(sorted[0].id);
@@ -71,9 +87,11 @@ export const EmailRemindersManager: React.FC = () => {
 
     setIsSending(true);
     setTimeout(() => {
-      const emailTo = selectedMeeting.attendeeEmail || 'ciudadano@ejemplo.com';
+      const allEmails = selectedMeeting.attendees.map((a) => a.email).filter(Boolean);
+      const emailTo = allEmails.length > 0 ? allEmails.join(',') : 'ciudadano@ejemplo.com';
+
       const mailtoLink = `mailto:${emailTo}?subject=${encodeURIComponent(customSubject)}&body=${encodeURIComponent(
-        `Hola ${selectedMeeting.attendeeName || 'Ciudadano'},\n\n${customMessage}\n\nDetalles de la Reunión:\n- Título: ${selectedMeeting.title}\n- Fecha: ${selectedMeeting.date} a las ${selectedMeeting.time}\n- Lugar / Enlace: ${selectedMeeting.meetLink || selectedMeeting.location}\n\nAtentamente,\nEquipo de Inclusión Social`
+        `Estimados participantes (${allEmails.join(', ') || 'Ciudadanos'}),\n\n${customMessage}\n\nDetalles de la Reunión:\n- Título: ${selectedMeeting.title}\n- Fecha: ${selectedMeeting.date} a las ${selectedMeeting.time}\n- Lugar / Enlace: ${selectedMeeting.meetLink || selectedMeeting.location}\n\nAtentamente,\nEquipo de Inclusión Social`
       )}`;
 
       window.open(mailtoLink, '_blank');
@@ -90,7 +108,7 @@ export const EmailRemindersManager: React.FC = () => {
       ]);
 
       setIsSending(false);
-      setSuccessNotice(`¡Recordatorio enviado y registrado para ${emailTo}!`);
+      setSuccessNotice(`¡Recordatorio enviado a todos los invitados (${allEmails.length || 1} destinatarios)!`);
       setTimeout(() => setSuccessNotice(null), 5000);
     }, 500);
   };
@@ -98,16 +116,19 @@ export const EmailRemindersManager: React.FC = () => {
   const handleSendAllAutomated = () => {
     setIsSending(true);
     setTimeout(() => {
-      const newLogs = meetings.map((m) => ({
-        id: Math.random().toString(),
-        title: m.title,
-        email: m.attendeeEmail || 'ciudadano@ejemplo.com',
-        time: new Date().toLocaleString(),
-        status: 'success' as const,
-      }));
+      const newLogs = meetings.map((m) => {
+        const allEmails = m.attendees.map((a) => a.email).filter(Boolean).join(',');
+        return {
+          id: Math.random().toString(),
+          title: m.title,
+          email: allEmails || 'ciudadano@ejemplo.com',
+          time: new Date().toLocaleString(),
+          status: 'success' as const,
+        };
+      });
       setSentLogs((prev) => [...newLogs, ...prev]);
       setIsSending(false);
-      setSuccessNotice(`¡Se han despachado recordatorios automáticos masivos para las ${meetings.length} reuniones programadas!`);
+      setSuccessNotice(`¡Se han despachado recordatorios automáticos masivos para las ${meetings.length} reuniones con todos sus invitados!`);
       setTimeout(() => setSuccessNotice(null), 5000);
     }, 800);
   };
@@ -129,7 +150,7 @@ export const EmailRemindersManager: React.FC = () => {
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Recordatorios Automáticos por Correo</h2>
           <p className="text-white/80 text-sm max-w-xl">
-            Configure y envíe alertas automáticas, avisos previos de 24h/2h y resúmenes de citas a los ciudadanos vía Gmail o cliente de correo predeterminado.
+            Configure y envíe alertas automáticas, avisos previos de 24h/2h y resúmenes de citas a todos los invitados del evento vía Gmail o cliente de correo predeterminado.
           </p>
         </div>
         <button
@@ -159,7 +180,7 @@ export const EmailRemindersManager: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-slate-900">Centro de Redacción de Recordatorios</h3>
-                <p className="text-xs text-slate-500">Seleccione la reunión y personalice la plantilla de correo</p>
+                <p className="text-xs text-slate-500">Seleccione la reunión y personalice la plantilla para todos los invitados</p>
               </div>
             </div>
           </div>
@@ -167,7 +188,7 @@ export const EmailRemindersManager: React.FC = () => {
           <form onSubmit={handleSendReminder} className="space-y-5">
             <div>
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-                Seleccionar Reunión / Cita Ciudadana
+                Seleccionar Reunión / Cita Ciudadana (Más recientes primero)
               </label>
               {meetings.length === 0 ? (
                 <div className="p-4 rounded-xl bg-slate-50 text-slate-500 text-sm text-center">
@@ -181,7 +202,7 @@ export const EmailRemindersManager: React.FC = () => {
                 >
                   {meetings.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.title} — {m.date} ({m.time}) [{m.attendeeName || 'Sin nombre'}]
+                      {m.title} — {m.date} ({m.time}) [{m.attendees.length} invitados]
                     </option>
                   ))}
                 </select>
@@ -189,14 +210,27 @@ export const EmailRemindersManager: React.FC = () => {
             </div>
 
             {selectedMeeting && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 text-xs text-slate-600">
-                <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span><strong>Ciudadano:</strong> {selectedMeeting.attendeeName || 'No especificado'} ({selectedMeeting.attendeeEmail || 'Sin email'})</span>
-                </div>
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 text-xs text-slate-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span><strong>Fecha:</strong> {selectedMeeting.date} - {selectedMeeting.time}</span>
+                  <span><strong>Fecha y Hora:</strong> {selectedMeeting.date} a las {selectedMeeting.time}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Users className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                  <div>
+                    <strong className="text-slate-800">Invitados ({selectedMeeting.attendees.length}):</strong>
+                    <div className="flex flex-wrap gap-1.5 mt-1">
+                      {selectedMeeting.attendees.length === 0 ? (
+                        <span className="text-slate-400">Sin invitados registrados</span>
+                      ) : (
+                        selectedMeeting.attendees.map((att, idx) => (
+                          <span key={idx} className="px-2 py-0.5 bg-white border border-slate-200 rounded-md text-[11px] text-slate-700 font-medium">
+                            {att.displayName ? `${att.displayName} (${att.email})` : att.email}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -286,7 +320,7 @@ export const EmailRemindersManager: React.FC = () => {
               className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
-              <span>{isSending ? 'Enviando...' : 'Enviar Recordatorio por Correo (Gmail)'}</span>
+              <span>{isSending ? 'Enviando...' : `Enviar Recordatorio a Todos los Invitados (${selectedMeeting?.attendees.length || 0})`}</span>
             </button>
           </form>
         </div>
@@ -313,7 +347,7 @@ export const EmailRemindersManager: React.FC = () => {
                         <CheckCircle className="w-3.5 h-3.5" /> Enviado
                       </span>
                     </div>
-                    <div className="text-slate-500 truncate">Destinatario: {log.email}</div>
+                    <div className="text-slate-500 truncate">Destinatarios: {log.email}</div>
                     <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-200/60 flex justify-between">
                       <span>Automático (Gmail API)</span>
                       <span>{log.time}</span>
