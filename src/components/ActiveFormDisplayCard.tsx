@@ -65,12 +65,24 @@ export const ActiveFormDisplayCard: React.FC<ActiveFormDisplayCardProps> = ({
 
   return (
     <ErrorBoundary>
-      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden transition-all">
-        {/* Removed header image logo and theme configuration button */}
+      <div
+        className="rounded-3xl border shadow-sm overflow-hidden transition-all backdrop-blur-xs"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          borderColor: `${themeHex}30`,
+        }}
+      >
+        {/* Themed accent bar */}
         <div className="h-2.5 w-full" style={{ backgroundColor: themeHex }} />
 
         {/* 3. Form Info Header & Controls Bar */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white">
+        <div
+          className="p-5 sm:p-6 border-b flex flex-col md:flex-row md:items-center justify-between gap-4"
+          style={{
+            backgroundColor: `${themeHex}06`,
+            borderBottomColor: `${themeHex}20`,
+          }}
+        >
           <div className="space-y-1.5 flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span

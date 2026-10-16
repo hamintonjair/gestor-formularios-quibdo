@@ -26,6 +26,7 @@ import {
   extractFormId,
   GoogleApiAuthError,
 } from './services/formsApi';
+import { MeetingScheduler } from './components/MeetingScheduler';
 import type {
   GoogleDriveFile,
   GoogleFormSchema,
@@ -46,6 +47,10 @@ import { RegistrationDetailModal } from './components/RegistrationDetailModal';
 import { ActiveFormDisplayCard } from './components/ActiveFormDisplayCard';
 import { ThemeConfigModal } from './components/ThemeConfigModal';
 import { ConfirmationModal } from './components/ConfirmationModal';
+import { ConfigurationGuide } from './components/ConfigurationGuide';
+import { EmailRemindersManager } from './components/EmailRemindersManager';
+import { PWAInstallButton } from './components/PWAInstallButton';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import {
   INITIAL_DEMO_DRIVE_FORMS,
   INITIAL_DEMO_SPREADSHEET,
@@ -85,6 +90,7 @@ function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [currentView, setCurrentView] = useState<'forms' | 'meetings' | 'guide' | 'reminders'>('forms');
 
   // Form & Records State
   const [driveForms, setDriveForms] = useState<GoogleDriveFile[]>([]);
@@ -730,8 +736,17 @@ function Dashboard() {
   }
 
   // 5. Render Authenticated Dashboard
+  const activeThemeHex = formTheme.themeColor || currentTheme.primaryHex;
+  const activeBgColor = formTheme.backgroundColor || `${activeThemeHex}0D`;
+
   return (
-    <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans">
+    <div
+      className="min-h-screen text-slate-900 flex flex-col font-sans transition-colors duration-300"
+      style={{
+        backgroundColor: activeBgColor,
+        fontFamily: formTheme.textFont ? `${formTheme.textFont}, sans-serif` : undefined,
+      }}
+    >
       <Navbar
         user={user}
         onLogout={handleLogout}
@@ -742,6 +757,8 @@ function Dashboard() {
         onOpenThemeConfig={() => setIsThemeModalOpen(true)}
         onConnectGoogle={handleLogin}
         isTokenMissing={!!user && !token}
+        currentView={currentView}
+        onSwitchView={setCurrentView}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
@@ -792,113 +809,123 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Form Selector Bar */}
-        <FormSelector
-          currentForm={currentForm}
-          driveForms={driveForms}
-          linkedSpreadsheet={linkedSpreadsheet}
-          isLoadingDrive={isLoadingDrive}
-          onSelectFormId={(id) => loadFormData(id)}
-          onOpenDynamicCreateModal={() => setIsDynamicBuilderOpen(true)}
-          onOpenAddFieldModal={() => setIsAddFieldModalOpen(true)}
-          onOpenDynamicRecordModal={() => setIsDynamicRecordModalOpen(true)}
-          onManualIdSubmit={handleManualFormId}
-          onOpenThemeConfig={() => setIsThemeModalOpen(true)}
-          onDeleteForm={(file) => setFormToDelete(file)}
-        />
+        {currentView === 'forms' ? (
+          <>
+            {/* Form Selector Bar */}
+            <FormSelector
+              currentForm={currentForm}
+              driveForms={driveForms}
+              linkedSpreadsheet={linkedSpreadsheet}
+              isLoadingDrive={isLoadingDrive}
+              onSelectFormId={(id) => loadFormData(id)}
+              onOpenDynamicCreateModal={() => setIsDynamicBuilderOpen(true)}
+              onOpenAddFieldModal={() => setIsAddFieldModalOpen(true)}
+              onOpenDynamicRecordModal={() => setIsDynamicRecordModalOpen(true)}
+              onManualIdSubmit={handleManualFormId}
+              onOpenThemeConfig={() => setIsThemeModalOpen(true)}
+              onDeleteForm={(file) => setFormToDelete(file)}
+            />
 
-        {/* Form Header & Themed Display Card (Shows banner, theme color, and fonts) */}
-        {currentForm && (
-          <ActiveFormDisplayCard
-            currentForm={currentForm}
-            linkedSpreadsheet={linkedSpreadsheet}
-          />
-        )}
+            {/* Form Header & Themed Display Card (Shows banner, theme color, and fonts) */}
+            {currentForm && (
+              <ActiveFormDisplayCard
+                currentForm={currentForm}
+                linkedSpreadsheet={linkedSpreadsheet}
+              />
+            )}
 
-        {/* Stats Summary Cards */}
-        <StatsCards records={records} formTitle={currentForm?.info.title} />
+            {/* Stats Summary Cards */}
+            <StatsCards records={records} formTitle={currentForm?.info.title} />
 
-        {/* Quick action banner if no form or no responses yet */}
-        {!currentForm ? (
-          <div
-            className={`rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r ${currentTheme.headerGradient}`}
-          >
-            <div className="space-y-2 max-w-xl text-center md:text-left">
-              <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full inline-block">
-                Diseño Dinámico
-              </span>
-              <h3 className="text-xl sm:text-2xl font-bold">
-                Crea Formularios de Acuerdo a la Necesidad
-              </h3>
-              <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
-                Diseña formularios dinámicos con los campos que requieras (Cédula, Barrio, Tipo de Población, Teléfono, etc.), asegurando siempre Nombre, Correo y Fecha de Registro.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              <button
-                type="button"
-                onClick={() => setIsDynamicBuilderOpen(true)}
-                className="inline-flex items-center gap-2 px-5 py-3 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all cursor-pointer shrink-0"
+            {/* Quick action banner if no form or no responses yet */}
+            {!currentForm ? (
+              <div
+                className={`rounded-3xl p-6 sm:p-8 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r ${currentTheme.headerGradient}`}
               >
-                <PlusCircle
-                  className="w-4 h-4"
-                  style={{ color: currentTheme.primaryHex }}
-                />
-                <span>Crear Formulario Dinámico</span>
-              </button>
-            </div>
-          </div>
-        ) : (
-          records.length === 0 && !isLoadingData && (
-            <div className="bg-slate-100/70 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
-                  style={{
-                    backgroundColor: `${formTheme.themeColor || currentTheme.primaryHex}20`,
-                    color: formTheme.themeColor || currentTheme.primaryHex,
-                  }}
-                >
-                  <HelpCircle className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-900">
-                    Formulario Activo: {currentForm.info.title}
-                  </h4>
-                  <p className="text-xs text-slate-600">
-                    Aún no hay respuestas en este formulario. Los ciudadanos pueden diligenciarlo desde el formulario de Google Forms o puedes ver el Excel en línea.
+                <div className="space-y-2 max-w-xl text-center md:text-left">
+                  <span className="text-[11px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full inline-block">
+                    Diseño Dinámico
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-bold">
+                    Crea Formularios de Acuerdo a la Necesidad
+                  </h3>
+                  <p className="text-white/90 text-xs sm:text-sm leading-relaxed">
+                    Diseña formularios dinámicos con los campos que requieras (Cédula, Barrio, Tipo de Población, Teléfono, etc.), asegurando siempre Nombre, Correo y Fecha de Registro.
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                {currentForm.responderUri && (
-                  <a
-                    href={currentForm.responderUri}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white rounded-xl shadow-xs transition-opacity hover:opacity-95"
-                    style={{ backgroundColor: currentTheme.primaryHex }}
+                <div className="flex items-center gap-2 flex-wrap justify-center">
+                  <button
+                    type="button"
+                    onClick={() => setIsDynamicBuilderOpen(true)}
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-white text-slate-900 hover:bg-slate-50 font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all cursor-pointer shrink-0"
                   >
-                    <span>Abrir Formulario para Diligenciar</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
+                    <PlusCircle
+                      className="w-4 h-4"
+                      style={{ color: currentTheme.primaryHex }}
+                    />
+                    <span>Crear Formulario Dinámico</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          )
-        )}
+            ) : (
+              records.length === 0 && !isLoadingData && (
+                <div className="bg-slate-100/70 border border-slate-200 rounded-3xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+                      style={{
+                        backgroundColor: `${formTheme.themeColor || currentTheme.primaryHex}20`,
+                        color: formTheme.themeColor || currentTheme.primaryHex,
+                      }}
+                    >
+                      <HelpCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900">
+                        Formulario Activo: {currentForm.info.title}
+                      </h4>
+                      <p className="text-xs text-slate-600">
+                        Aún no hay respuestas en este formulario. Los ciudadanos pueden diligenciarlo desde el formulario de Google Forms o puedes ver el Excel en línea.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {currentForm.responderUri && (
+                      <a
+                        href={currentForm.responderUri}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-semibold text-white rounded-xl shadow-xs transition-opacity hover:opacity-95"
+                        style={{ backgroundColor: currentTheme.primaryHex }}
+                      >
+                        <span>Abrir Formulario para Diligenciar</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )
+            )}
 
-        {/* Main Registrations Table */}
-        <RegistrationsTable
-          records={records}
-          formResponderUrl={currentForm?.responderUri}
-          formTitle={currentForm?.info.title}
-          formId={currentForm?.formId}
-          linkedSpreadsheet={linkedSpreadsheet}
-          onSelectRecord={(rec) => setSelectedRecord(rec)}
-          onOpenDynamicRecordModal={() => setIsDynamicRecordModalOpen(true)}
-          isLoading={isLoadingData}
-        />
+            {/* Main Registrations Table */}
+            <RegistrationsTable
+              records={records}
+              formResponderUrl={currentForm?.responderUri}
+              formTitle={currentForm?.info.title}
+              formId={currentForm?.formId}
+              linkedSpreadsheet={linkedSpreadsheet}
+              onSelectRecord={(rec) => setSelectedRecord(rec)}
+              onOpenDynamicRecordModal={() => setIsDynamicRecordModalOpen(true)}
+              isLoading={isLoadingData}
+            />
+          </>
+        ) : currentView === 'guide' ? (
+          <ConfigurationGuide />
+        ) : currentView === 'reminders' ? (
+          <EmailRemindersManager />
+        ) : (
+          <MeetingScheduler records={records} user={user} />
+        )}
       </main>
 
       {/* Record Detail Modal */}
@@ -961,6 +988,9 @@ function Dashboard() {
             : []
         }
       />
+
+      {/* Offline Status Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }

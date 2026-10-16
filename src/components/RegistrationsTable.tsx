@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Search,
   Download,
@@ -44,6 +44,8 @@ export const RegistrationsTable = ({
   const [sortField, setSortField] = useState<'nombre' | 'correo' | 'fecha'>('fecha');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [copiedEmails, setCopiedEmails] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
   const themeHex = formTheme.themeColor || currentTheme.primaryHex;
 
@@ -110,6 +112,19 @@ export const RegistrationsTable = ({
     });
   }, [filteredRecords, sortField, sortOrder]);
 
+  // Pagination logic
+  const paginatedRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * recordsPerPage;
+    return sortedRecords.slice(startIndex, startIndex + recordsPerPage);
+  }, [sortedRecords, currentPage]);
+
+  const totalPages = Math.ceil(sortedRecords.length / recordsPerPage);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, dateFilter]);
+
   const toggleSort = (field: 'nombre' | 'correo' | 'fecha') => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -117,7 +132,9 @@ export const RegistrationsTable = ({
       setSortField(field);
       setSortOrder('asc');
     }
+    setCurrentPage(1);
   };
+
 
   // Export to Excel with bold headers and structured formatting
   const handleExportExcel = () => {
@@ -256,7 +273,13 @@ export const RegistrationsTable = ({
     : null;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs overflow-hidden">
+    <div
+      className="rounded-3xl border shadow-2xs overflow-hidden transition-all backdrop-blur-xs"
+      style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: `${themeHex}30`,
+      }}
+    >
       {/* Table Toolbar */}
       <div className="p-4 sm:p-5 border-b border-slate-200 space-y-3.5">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -459,7 +482,7 @@ export const RegistrationsTable = ({
                 </td>
               </tr>
             ) : (
-              sortedRecords.map((record) => (
+              paginatedRecords.map((record) => (
                 <tr
                   key={record.id}
                   onClick={() => onSelectRecord(record)}
@@ -552,6 +575,29 @@ export const RegistrationsTable = ({
         </table>
       </div>
 
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="px-4 py-3 border-t border-slate-200 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50 cursor-pointer"
+          >
+            Anterior
+          </button>
+          <span className="text-xs text-slate-600">
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 disabled:opacity-50 cursor-pointer"
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
+
       {/* Footer bar */}
       {records.length > 0 && (
         <div className="px-4 py-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
@@ -559,7 +605,6 @@ export const RegistrationsTable = ({
             {formTitle ? `Formulario: ${formTitle}` : 'Google Forms Activo'}
           </span>
           <div className="flex items-center gap-3">
-
             <span>·</span>
             <span>Campos obligatorios: Nombre · Correo electrónico · Fecha de registro</span>
           </div>

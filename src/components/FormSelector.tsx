@@ -66,7 +66,13 @@ export const FormSelector = ({
   const themeHex = formTheme.themeColor || currentTheme.primaryHex;
 
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/90 shadow-2xs p-4 sm:p-5">
+    <div
+      className="rounded-3xl border shadow-2xs p-4 sm:p-5 transition-all backdrop-blur-xs"
+      style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.88)',
+        borderColor: `${themeHex}30`,
+      }}
+    >
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Left: Active Form info */}
         <div className="flex items-start gap-3.5 flex-1 min-w-0">

@@ -260,13 +260,14 @@ export const createCustomRegistrationForm = async (
   // Step 2: BatchUpdate with description, logo image (if public URL) and all configured fields
   const batchRequests: Record<string, unknown>[] = [];
 
-  if (description?.trim()) {
+  if (title?.trim() || description?.trim()) {
     batchRequests.push({
       updateFormInfo: {
         info: {
-          description: description.trim(),
+          title: title?.trim(),
+          description: description?.trim(),
         },
-        updateMask: 'description',
+        updateMask: 'title,description',
       },
     });
   }
@@ -618,4 +619,53 @@ export const deleteFormFromDrive = async (accessToken: string, fileId: string): 
     }
   }
 };
+
+/**
+ * Agendar reunión en Google Calendar con Meet integrado
+ */
+export const scheduleMeeting = async (
+  accessToken: string,
+  attendeeEmail: string,
+  summary: string,
+  description: string,
+  startTime: Date,
+  durationMinutes: number = 60
+): Promise<string> => {
+  const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
+
+  const event = {
+    summary: summary,
+    description: description,
+    start: { dateTime: startTime.toISOString() },
+    end: { dateTime: endTime.toISOString() },
+    attendees: [{ email: attendeeEmail }],
+    conferenceData: {
+      createRequest: {
+        requestId: `meet-${Date.now()}`,
+        conferenceSolutionKey: { type: 'hangoutsMeet' },
+      },
+    },
+  };
+
+  const response = await fetch(
+    'https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken.trim()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(event),
+    }
+  );
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err?.error?.message || 'Error al programar la reunión.');
+  }
+
+  const data = await response.json();
+  return data.hangoutLink; // Enlace de Google Meet
+};
+
 

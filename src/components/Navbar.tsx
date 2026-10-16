@@ -9,6 +9,7 @@ import {
   LogIn,
 } from 'lucide-react';
 import { useAppTheme } from '../context/ThemeContext';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   user: User | null;
@@ -20,6 +21,8 @@ interface NavbarProps {
   onOpenThemeConfig?: () => void;
   onConnectGoogle?: () => void;
   isTokenMissing?: boolean;
+  currentView: 'forms' | 'meetings' | 'guide' | 'reminders';
+  onSwitchView: (view: 'forms' | 'meetings' | 'guide' | 'reminders') => void;
 }
 
 export const Navbar = ({
@@ -32,6 +35,8 @@ export const Navbar = ({
   onOpenThemeConfig,
   onConnectGoogle,
   isTokenMissing,
+  currentView,
+  onSwitchView,
 }: NavbarProps) => {
   const { branding, currentTheme, formTheme } = useAppTheme();
 
@@ -74,6 +79,37 @@ export const Navbar = ({
 
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* View Switcher */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg mr-2">
+              <button
+                onClick={() => onSwitchView('forms')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'forms' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Formularios
+              </button>
+              <button
+                onClick={() => onSwitchView('meetings')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'meetings' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Reuniones
+              </button>
+              <button
+                onClick={() => onSwitchView('guide')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'guide' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Guía Config
+              </button>
+              <button
+                onClick={() => onSwitchView('reminders')}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'reminders' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+              >
+                Recordatorios
+              </button>
+            </div>
+
+            {/* PWA Install Button */}
+            <PWAInstallButton />
+
             {/* Sync Responses Button */}
             <button
               type="button"
