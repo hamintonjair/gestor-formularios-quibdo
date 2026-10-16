@@ -14,8 +14,8 @@ export default defineConfig(() => {
         includeAssets: ['favicon.ico', 'logo.jpg'],
         manifest: {
           id: '/',
-          name: 'Inclusión Social - Gestor Ciudadano',
-          short_name: 'InclusiónSocial',
+          name: 'Gestor',
+          short_name: 'Gestor',
           description: 'Plataforma integral de registro ciudadano, agendamiento de reuniones y gestión institucional.',
           theme_color: '#2563eb',
           background_color: '#ffffff',
