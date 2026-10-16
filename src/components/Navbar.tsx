@@ -80,30 +80,30 @@ export const Navbar = ({
           {/* Right Actions */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* View Switcher */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg mr-2">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg mr-1 overflow-x-auto max-w-[180px] sm:max-w-none scrollbar-none shrink-0">
               <button
                 onClick={() => onSwitchView('forms')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'forms' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`px-2 py-1 text-[11px] sm:px-3 sm:text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${currentView === 'forms' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
               >
                 Formularios
               </button>
               <button
                 onClick={() => onSwitchView('meetings')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'meetings' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`px-2 py-1 text-[11px] sm:px-3 sm:text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${currentView === 'meetings' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
               >
                 Reuniones
               </button>
               <button
                 onClick={() => onSwitchView('guide')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'guide' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`px-2 py-1 text-[11px] sm:px-3 sm:text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${currentView === 'guide' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                Guía Config
+                Guía
               </button>
               <button
                 onClick={() => onSwitchView('reminders')}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${currentView === 'reminders' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`px-2 py-1 text-[11px] sm:px-3 sm:text-xs font-semibold rounded-md transition-colors whitespace-nowrap ${currentView === 'reminders' ? 'bg-white shadow-xs text-indigo-900' : 'text-slate-600 hover:text-slate-900'}`}
               >
-                Recordatorios
+                Alertas
               </button>
             </div>
 

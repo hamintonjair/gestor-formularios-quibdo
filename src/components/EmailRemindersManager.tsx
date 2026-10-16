@@ -198,13 +198,16 @@ export const EmailRemindersManager: React.FC = () => {
                 <select
                   value={selectedMeetingId}
                   onChange={(e) => setSelectedMeetingId(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                  className="w-full truncate rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
                 >
-                  {meetings.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.title} — {m.date} ({m.time}) [{m.attendees.length} invitados]
-                    </option>
-                  ))}
+                  {meetings.map((m) => {
+                    const shortTitle = m.title.length > 32 ? m.title.slice(0, 32) + '...' : m.title;
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {shortTitle} ({m.date} {m.time})
+                      </option>
+                    );
+                  })}
                 </select>
               )}
             </div>
