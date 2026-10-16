@@ -26,8 +26,8 @@ interface ThemeContextType {
 const STORAGE_KEY = 'app_branding_config_v2';
 
 const DEFAULT_BRANDING: BrandingConfig = {
-  institutionName: 'Gestor de Formularios y Registros',
-  subHeader: 'Alcaldía de Quibdó · Secretaría de Inclusión y Cohesión Social',
+  institutionName: 'Gestor',
+  subHeader: 'Plataforma integral de gestión',
   logoUrl: '/logo.jpg',
   logoType: 'custom',
   themeId: 'amber',
