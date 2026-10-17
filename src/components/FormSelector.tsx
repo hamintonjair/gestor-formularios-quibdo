@@ -67,7 +67,7 @@ export const FormSelector = ({
 
   return (
     <div
-      className="rounded-3xl border shadow-2xs p-4 sm:p-5 transition-all backdrop-blur-xs"
+      className="rounded-3xl border p-4 sm:p-5 transition-all"
       style={{
         backgroundColor: 'rgba(255, 255, 255, 0.88)',
         borderColor: `${themeHex}30`,
@@ -171,7 +171,7 @@ export const FormSelector = ({
                   className="fixed inset-0 z-40"
                   onClick={() => setIsDropdownOpen(false)}
                 />
-                <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 max-h-80 overflow-y-auto animate-in fade-in duration-100">
+                <div className="absolute left-0 sm:left-auto sm:right-0 mt-2 w-full sm:w-96 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-[100] max-h-80 overflow-y-auto animate-in fade-in duration-100">
                   <div className="px-3.5 py-2 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider flex justify-between items-center">
                     <span>Formularios en tu Google Drive</span>
                     <span>({driveForms.length})</span>
