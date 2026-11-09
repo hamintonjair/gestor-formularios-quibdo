@@ -40,21 +40,41 @@
         </section>
 
         <section class="mb-8">
-            <h2 class="text-xl font-bold mb-3">4. Protección de Datos y Compartición</h2>
-            <p>No vendemos, alquilamos ni compartimos la información personal de los ciudadanos con terceros. Los datos se procesan utilizando las APIs oficiales de Google bajo estrictas medidas de seguridad. La aplicación cumple con las normas de seguridad de Google para el manejo de datos sensibles.</p>
+            <h2 class="text-xl font-bold mb-3">4. Mecanismos de Seguridad y Protección de Datos Sensibles</h2>
+            <p class="mb-2">Implementamos medidas de seguridad técnicas, administrativas y físicas avanzadas para salvaguardar todos los datos personales y sensibles de los usuarios:</p>
+            <ul class="list-disc pl-6 space-y-1">
+                <li><strong>Cifrado en tránsito:</strong> Todas las comunicaciones entre el navegador del usuario, nuestros servidores y las APIs de Google se transmiten cifradas mediante protocolos seguros TLS 1.3/HTTPS.</li>
+                <li><strong>Cifrado en reposo:</strong> Los datos y credenciales temporales se almacenan de forma segura utilizando cifrado de nivel bancario AES-256.</li>
+                <li><strong>No almacenamiento de contraseñas de Google:</strong> La aplicación utiliza el estándar industrial OAuth 2.0. Nunca recopilamos, accedemos ni almacenamos la contraseña de su cuenta de Google.</li>
+                <li><strong>Tokens de acceso efímeros:</strong> Los tokens de acceso a las APIs se gestionan con alcances mínimos y expiran automáticamente conforme a las directivas de seguridad de Google.</li>
+                <li><strong>Principio de Privilegio Mínimo:</strong> La aplicación únicamente solicita los permisos estrictamente requeridos para las funciones visibles activadas por el usuario.</li>
+            </ul>
         </section>
 
         <section class="mb-8">
-            <h2 class="text-xl font-bold mb-3">5. Derechos del Usuario</h2>
-            <p>Los usuarios tienen el derecho de revocar el acceso de la aplicación a sus datos de Google en cualquier momento a través de la configuración de seguridad de su propia cuenta de Google.</p>
+            <h2 class="text-xl font-bold mb-3">5. Retención y Eliminación de Datos de Google (Data Retention and Deletion)</h2>
+            <p class="mb-2">Cumplimos estrictamente con los lineamientos de retención y derecho al olvido:</p>
+            <ul class="list-disc pl-6 space-y-1">
+                <li><strong>Periodo de Retención:</strong> Los datos sincronizados (como títulos de formularios, respuestas o eventos de calendario) se conservan únicamente durante el tiempo en que el usuario mantenga su sesión activa o el servicio contratado esté en funcionamiento.</li>
+                <li><strong>Eliminación de Datos a Solicitud del Usuario:</strong> Los usuarios pueden solicitar en cualquier momento la eliminación completa e irreversible de cualquier dato asociado a su cuenta enviando una solicitud a <span class="font-semibold text-blue-600">inclusionsocial@quibdo-choco.gov.co</span>. Las solicitudes se procesan en un plazo máximo de 48 horas hábiles.</li>
+                <li><strong>Revocación de Permisos de Google:</strong> El usuario puede revocar de forma inmediata el acceso de esta aplicación a sus datos de Google visitando el panel oficial de seguridad de Google: <a href="https://myaccount.google.com/permissions" target="_blank" rel="noreferrer" class="text-blue-600 underline">https://myaccount.google.com/permissions</a>. Al revocar el acceso, los tokens de autenticación se invalidan de inmediato en nuestros sistemas.</li>
+                <li><strong>Purgado Automático:</strong> Al cerrar sesión en la plataforma, los tokens de acceso temporales en la sesión local son eliminados de inmediato del navegador del usuario.</li>
+            </ul>
         </section>
 
-        <section>
-            <h2 class="text-xl font-bold mb-3">6. Contacto</h2>
-            <p>Si tiene alguna pregunta sobre esta Política de Privacidad, puede contactarnos en:</p>
-            <p class="font-semibold">inclusionsocial@quibdo-choco.gov.co</p>
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-3">6. Cumplimiento de la Política de Datos de Usuario de los Servicios de Google API</h2>
+            <p class="mb-2">El uso y la transferencia que realice <strong>Gestor</strong> a cualquier otra aplicación de la información recibida a través de las APIs de Google se adherirá a la <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noreferrer" class="text-blue-600 underline">Política de Datos de Usuario de los Servicios de Google API</a>, incluidos los requisitos de <em>Uso Limitado (Limited Use Requirements)</em>.</p>
+            <p>No utilizamos los datos de Google para entrenar modelos de inteligencia artificial general ni compartimos información con anunciantes, corredores de datos (data brokers) ni terceros con fines de comercialización.</p>
         </section>
-        
+
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-3">7. Contacto y Responsable de Tratamiento</h2>
+            <p>Para ejercer sus derechos de acceso, rectificación, cancelación u oposición (ARCO), o para consultas sobre privacidad y seguridad de datos, contáctenos en:</p>
+            <p class="font-semibold mt-1">Alcaldía de Quibdó - Secretaría de Inclusión Social</p>
+            <p class="text-blue-600 font-semibold">inclusionsocial@quibdo-choco.gov.co</p>
+        </section>
+
         <div class="mt-10 pt-6 border-t border-slate-100 text-center">
             <a href="/" class="text-blue-600 font-semibold hover:underline">Volver a la página principal</a>
         </div>
